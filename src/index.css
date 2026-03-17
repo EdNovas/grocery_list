@@ -1568,12 +1568,12 @@ body {
 
 .modal-dialog {
   background: var(--bg-elevated);
-  border: 1px solid var(--border-subtle);
+  border: none;
   border-radius: var(--radius-xl);
   padding: var(--space-xl);
   width: 100%;
   max-width: 380px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.05);
   animation: slideUp 0.2s ease;
 }
 
@@ -1638,4 +1638,189 @@ body {
   .product-card:hover .product-card__edit-btn {
     display: flex;
   }
+}
+
+/* ====== Admin Panel ====== */
+.admin-header {
+  margin-bottom: var(--space-lg);
+}
+
+.admin-tabs {
+  display: flex;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-xl);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.admin-tab {
+  padding: var(--space-sm) var(--space-lg);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-subtle);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all var(--transition-fast);
+}
+
+.admin-tab.active {
+  background: var(--color-primary);
+  color: #fff;
+  border-color: var(--color-primary);
+}
+
+.admin-tab:hover:not(.active) {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+}
+
+/* Stats Grid */
+.admin-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-md);
+}
+
+@media (min-width: 600px) {
+  .admin-stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.admin-stat-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-xl) var(--space-md);
+  text-align: center;
+}
+
+.admin-stat-card__icon {
+  font-size: 2rem;
+}
+
+.admin-stat-card__value {
+  font-size: var(--font-size-2xl);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.admin-stat-card__label {
+  font-size: var(--font-size-sm);
+  color: var(--text-tertiary);
+}
+
+/* Admin Table */
+.admin-table-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-card);
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-sm);
+}
+
+.admin-table th {
+  text-align: left;
+  padding: var(--space-sm) var(--space-md);
+  color: var(--text-tertiary);
+  font-weight: 500;
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--border-subtle);
+  white-space: nowrap;
+  background: var(--bg-elevated);
+}
+
+.admin-table td {
+  padding: var(--space-sm) var(--space-md);
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-subtle);
+  white-space: nowrap;
+}
+
+.admin-table tbody tr:hover {
+  background: var(--bg-elevated);
+}
+
+.admin-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.admin-table__date {
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+}
+
+/* Admin Badges */
+.admin-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+}
+
+.admin-badge--admin {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+}
+
+.admin-badge--user {
+  background: rgba(148, 163, 184, 0.15);
+  color: var(--text-tertiary);
+}
+
+/* Admin Actions */
+.admin-actions {
+  display: flex;
+  gap: var(--space-xs);
+}
+
+/* ====== Toast ====== */
+.toast {
+  position: fixed;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  padding: var(--space-sm) var(--space-xl);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-sm);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  z-index: 1100;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.25s ease;
+  white-space: nowrap;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.toast-container {
+  position: fixed;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1100;
+}
+
+.toast-container .toast {
+  position: static;
+  transform: none;
+  opacity: 1;
+  pointer-events: auto;
 }

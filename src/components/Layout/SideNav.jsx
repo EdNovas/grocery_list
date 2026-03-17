@@ -1,8 +1,10 @@
 import { NavLink } from 'react-router-dom';
 import { useShoppingList } from '../../hooks/useShoppingList';
+import { useAuth } from '../../context/AuthContext';
 
 export default function SideNav() {
   const { items } = useShoppingList();
+  const { user } = useAuth();
   const activeCount = items.filter(i => !i.completed).length;
 
   const navItems = [
@@ -10,6 +12,7 @@ export default function SideNav() {
     { to: '/browse', icon: '🗂️', label: '商品分类' },
     { to: '/history', icon: '📊', label: '购买历史' },
     { to: '/settings', icon: '⚙️', label: '设置' },
+    ...(user?.isAdmin ? [{ to: '/admin', icon: '🔧', label: '管理后台' }] : []),
   ];
 
   return (

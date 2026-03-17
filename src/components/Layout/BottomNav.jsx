@@ -1,8 +1,10 @@
 import { NavLink } from 'react-router-dom';
 import { useShoppingList } from '../../hooks/useShoppingList';
+import { useAuth } from '../../context/AuthContext';
 
 export default function BottomNav() {
   const { items } = useShoppingList();
+  const { user } = useAuth();
   const activeCount = items.filter(i => !i.completed).length;
 
   return (
@@ -24,6 +26,12 @@ export default function BottomNav() {
         <span className="bottom-nav__icon">⚙️</span>
         <span>设置</span>
       </NavLink>
+      {user?.isAdmin && (
+        <NavLink to="/admin" className={({ isActive }) => `bottom-nav__item ${isActive ? 'active' : ''}`}>
+          <span className="bottom-nav__icon">🔧</span>
+          <span>管理</span>
+        </NavLink>
+      )}
     </nav>
   );
 }

@@ -97,4 +97,14 @@ export const frequencies = {
     request('/frequencies', { method: 'POST', body: { productId, freqDays } }),
 };
 
-export default { auth, list, products, history, recommend, frequencies };
+// Admin
+export const admin = {
+  getOverview: () => request('/admin?tab=overview'),
+  getUsers: () => request('/admin?tab=users'),
+  getProducts: () => request('/admin?tab=products'),
+  deleteProduct: (id) => request('/admin', { method: 'POST', body: { action: 'delete_product', id } }),
+  toggleAdmin: (userId) => request('/admin', { method: 'POST', body: { action: 'toggle_admin', userId } }),
+  deleteUser: (userId) => request('/admin', { method: 'POST', body: { action: 'delete_user', userId } }),
+};
+
+export default { auth, list, products, history, recommend, frequencies, admin };

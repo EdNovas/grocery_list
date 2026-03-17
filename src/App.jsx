@@ -6,6 +6,7 @@ import HomePage from './pages/HomePage'
 import BrowsePage from './pages/BrowsePage'
 import HistoryPage from './pages/HistoryPage'
 import SettingsPage from './pages/SettingsPage'
+import AdminPage from './pages/AdminPage'
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
@@ -40,6 +41,7 @@ export default function App() {
                 <Route path="/list" element={<Navigate to="/" replace />} />
                 <Route path="/history" element={<HistoryPage />} />
                 <Route path="/settings" element={<SettingsPage />} />
+                <Route path="/admin" element={<AdminPage />} />
               </Routes>
             </Layout>
           </ProtectedRoute>
