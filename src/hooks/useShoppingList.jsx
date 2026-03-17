@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { list as listApi } from '../services/api';
 import { PRODUCTS } from '../data/products';
 
@@ -82,16 +82,22 @@ export function ShoppingListProvider({ children }) {
     }
   };
 
-  const updateNote = async (id, note) => {
-    try {
-      await listApi.update(id, { note });
-      setItems(prev =>
-        prev.map(i => i.id === id ? { ...i, note } : i)
-      );
-    } catch (err) {
-      console.error(err);
-    }
-  };
+  // Debounced note update — update local state immediately, debounce API call
+  const noteTimers = useRef({});
+  const updateNote = useCallback((id, note) => {
+    // Optimistic: update local state immediately so input stays responsive
+    setItems(prev => prev.map(i => i.id === id ? { ...i, note } : i));
+
+    // Debounce API call (500ms)
+    clearTimeout(noteTimers.current[id]);
+    noteTimers.current[id] = setTimeout(async () => {
+      try {
+        await listApi.update(id, { note });
+      } catch (err) {
+        console.error('Failed to save note:', err);
+      }
+    }, 500);
+  }, []);
 
   const completeAll = async () => {
     try {

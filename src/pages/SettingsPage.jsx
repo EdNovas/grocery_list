@@ -1,12 +1,12 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { useTheme } from '../context/ThemeContext';
+import { useTheme, STYLE_THEMES } from '../context/ThemeContext';
 import { frequencies as freqApi } from '../services/api';
 import { PRODUCTS, CATEGORIES } from '../data/products';
 
 export default function SettingsPage() {
   const { user, logout } = useAuth();
-  const { theme, preference, setPreference } = useTheme();
+  const { theme, preference, setPreference, styleTheme, setStyleTheme } = useTheme();
   const [freqCategory, setFreqCategory] = useState('vegetables');
   const [customFreqs, setCustomFreqs] = useState({});
   const [localFreqs, setLocalFreqs] = useState({});
@@ -195,6 +195,23 @@ export default function SettingsPage() {
                   style={{ padding: '4px 10px', fontSize: 'var(--font-size-xs)' }}
                 >
                   {opt.icon} {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Style Theme Picker */}
+          <div style={{ marginTop: 'var(--space-lg)', paddingTop: 'var(--space-lg)', borderTop: '1px solid var(--border-subtle)' }}>
+            <div style={{ color: 'var(--text-secondary)', fontSize: 'var(--font-size-sm)', marginBottom: 'var(--space-md)' }}>界面风格</div>
+            <div className="theme-picker">
+              {STYLE_THEMES.map(t => (
+                <button
+                  key={t.id}
+                  className={`theme-card ${styleTheme === t.id ? 'active' : ''}`}
+                  onClick={() => setStyleTheme(t.id)}
+                >
+                  <span className="theme-card__name">{t.name}</span>
+                  <span className="theme-card__desc">{t.desc}</span>
                 </button>
               ))}
             </div>
