@@ -1551,8 +1551,9 @@ body {
   position: fixed;
   inset: 0;
   z-index: 1000;
-  background: rgba(0,0,0,0.55);
-  backdrop-filter: blur(6px);
+  background: rgba(0,0,0,0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1566,13 +1567,13 @@ body {
 }
 
 .modal-dialog {
-  background: var(--bg-card);
+  background: var(--bg-elevated);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-xl);
   padding: var(--space-xl);
   width: 100%;
   max-width: 380px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
   animation: slideUp 0.2s ease;
 }
 
@@ -1610,7 +1611,7 @@ body {
 .product-card__edit-btn {
   position: absolute;
   top: 4px;
-  right: 4px;
+  left: 4px;
   z-index: 2;
   width: 24px;
   height: 24px;

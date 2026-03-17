@@ -6,7 +6,7 @@ function sanitize(str, maxLen = 50) {
   return str.replace(/<[^>]*>/g, '').replace(/[<>"'`;]/g, '').trim().slice(0, maxLen);
 }
 
-// POST /api/products/custom — Add or delete a custom product
+// POST /api/products/custom — Add, edit or delete custom products (v2 - 2026-03-17)
 export async function onRequestPost(context) {
   const { env, request } = context;
   const user = getUserFromRequest(request, JWT_SECRET);
@@ -19,9 +19,13 @@ export async function onRequestPost(context) {
     const productId = parseInt(body.id);
     if (!productId) return errorResponse('缺少商品ID');
     try {
-      await env.DB.prepare(
-        'DELETE FROM products WHERE id = ? AND is_system = 0'
-      ).bind(productId).run();
+      // Delete related records first (FK constraints)
+      await env.DB.batch([
+        env.DB.prepare('DELETE FROM shopping_list WHERE product_id = ?').bind(productId),
+        env.DB.prepare('DELETE FROM purchase_history WHERE product_id = ?').bind(productId),
+        env.DB.prepare('DELETE FROM user_frequencies WHERE product_id = ?').bind(productId),
+        env.DB.prepare('DELETE FROM products WHERE id = ? AND is_system = 0').bind(productId),
+      ]);
       return jsonResponse({ ok: true });
     } catch (err) {
       return errorResponse('删除失败: ' + err.message, 500);
