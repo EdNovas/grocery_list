@@ -31,3 +31,4 @@ wrangler.toml
 scripts/generate_icons.cjs
 scripts/detect_circles.cjs
 scripts/public/
+/.wrangler

@@ -57,8 +57,8 @@ export async function onRequestPost(context) {
     const existing = await env.DB.prepare('SELECT id FROM products WHERE id = ?').bind(productId).first();
     if (!existing) {
       await env.DB.prepare(
-        'INSERT OR IGNORE INTO products (id, name, emoji, category, default_freq_days, is_system) VALUES (?, ?, ?, ?, 7, 1)'
-      ).bind(productId, name || `商品${productId}`, '🛒', category || 'other').run();
+        'INSERT OR IGNORE INTO products (id, name, emoji, category, default_freq_days, is_system, created_by) VALUES (?, ?, ?, ?, 7, 0, ?)'
+      ).bind(productId, name || `商品${productId}`, '🛒', category || 'other', user.userId).run();
     }
 
     await env.DB.prepare(

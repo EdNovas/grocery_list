@@ -20,8 +20,8 @@ export async function onRequestPost(context) {
     if (!productId) return errorResponse('缺少商品ID');
     try {
       await env.DB.prepare(
-        'DELETE FROM products WHERE id = ? AND is_system = 0 AND created_by = ?'
-      ).bind(productId, user.userId).run();
+        'DELETE FROM products WHERE id = ? AND is_system = 0'
+      ).bind(productId).run();
       return jsonResponse({ ok: true });
     } catch (err) {
       return errorResponse('删除失败: ' + err.message, 500);
@@ -37,8 +37,8 @@ export async function onRequestPost(context) {
     if (!name) return errorResponse('商品名称不能为空');
     try {
       await env.DB.prepare(
-        'UPDATE products SET name = ?, emoji = ? WHERE id = ? AND is_system = 0 AND created_by = ?'
-      ).bind(name, emoji, productId, user.userId).run();
+        'UPDATE products SET name = ?, emoji = ? WHERE id = ? AND is_system = 0'
+      ).bind(name, emoji, productId).run();
       return jsonResponse({ ok: true });
     } catch (err) {
       return errorResponse('更新失败: ' + err.message, 500);

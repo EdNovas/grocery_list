@@ -447,6 +447,7 @@ body {
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
   transition: all var(--transition-normal);
+  min-height: 56px;
 }
 
 .list-item.completed {
@@ -488,6 +489,26 @@ body {
 .list-item__info {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.list-item__note-input {
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+  padding: 2px 0 0 0;
+  outline: none;
+  font-family: var(--font-family);
+  line-height: 1.3;
+}
+
+.list-item__note-input::placeholder {
+  color: var(--text-tertiary);
+  opacity: 0.5;
 }
 
 .list-item__name {

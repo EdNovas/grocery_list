@@ -442,16 +442,11 @@ export default function HomePage() {
                       <div className="list-item__name">{item.name}</div>
                       <input
                         type="text"
-                        className="list-item__note"
+                        className="list-item__note-input"
                         placeholder="添加备注..."
                         value={item.note || ''}
                         onChange={e => updateNote(item.id, e.target.value)}
                         onClick={e => e.stopPropagation()}
-                        style={{
-                          width: '100%', border: 'none', background: 'transparent',
-                          color: 'var(--text-tertiary)', fontSize: 'var(--font-size-xs)',
-                          padding: '2px 0', outline: 'none', fontFamily: 'var(--font-family)',
-                        }}
                       />
                     </div>
                     <div className="list-item__actions">

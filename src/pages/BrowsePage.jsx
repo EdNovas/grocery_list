@@ -87,9 +87,9 @@ export default function BrowsePage() {
       setEditProduct(null);
       setToast('已删除 ✓');
       setTimeout(() => setToast(''), 1200);
-    } catch {
-      setToast('❌ 删除失败');
-      setTimeout(() => setToast(''), 1200);
+    } catch (err) {
+      setToast(`❌ 删除失败: ${err.message}`);
+      setTimeout(() => setToast(''), 3000);
     }
   };
 
