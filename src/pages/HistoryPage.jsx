@@ -29,14 +29,19 @@ export default function HistoryPage() {
       const data = await historyApi.get();
       const grouped = {};
       (data.history || []).forEach(item => {
-        const date = item.purchased_at?.split('T')[0] || item.purchased_at?.split(' ')[0] || '未知日期';
-        if (!grouped[date]) grouped[date] = [];
-        grouped[date].push(item);
+        // Convert to local date for correct grouping
+        const d = new Date(item.purchased_at);
+        const localDate = isNaN(d.getTime())
+          ? (item.purchased_at?.split('T')[0] || '未知日期')
+          : `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+        const localTime = isNaN(d.getTime()) ? '' : `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+        if (!grouped[localDate]) grouped[localDate] = { items: [], time: localTime };
+        grouped[localDate].items.push(item);
       });
 
       const sortedGroups = Object.entries(grouped)
         .sort(([a], [b]) => b.localeCompare(a))
-        .map(([date, items]) => ({ date, items }));
+        .map(([date, { items, time }]) => ({ date, items, time }));
 
       setGroups(sortedGroups);
     } catch {
@@ -102,10 +107,9 @@ export default function HistoryPage() {
 
   const formatDate = (dateStr) => {
     try {
-      // Parse — handle "2025-03-16", "2025-03-16T12:30:00Z", etc.
-      const parts = dateStr.split(/[T ]/)[0].split('-');
+      const parts = dateStr.split('-');
       const year = parseInt(parts[0]);
-      const month = parseInt(parts[1]) - 1; // JS months are 0-indexed
+      const month = parseInt(parts[1]) - 1;
       const dayNum = parseInt(parts[2]);
       if (isNaN(year) || isNaN(month) || isNaN(dayNum)) return dateStr;
 
@@ -169,7 +173,7 @@ export default function HistoryPage() {
           {groups.map(group => (
             <div key={group.date} className="history-group">
               <div className="history-group__date" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span>{formatDate(group.date)}</span>
+                <span>{formatDate(group.date)}{group.time ? ` ${group.time}` : ''}</span>
                 <div style={{ display: 'flex', gap: 'var(--space-xs)' }}>
                   <button
                     className="btn btn--ghost btn--sm"

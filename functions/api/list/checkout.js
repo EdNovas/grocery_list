@@ -18,7 +18,7 @@ export async function onRequestPost(context) {
     const now = new Date();
     const localMs = now.getTime() - (tzOffset * 60 * 1000);
     const localDate = new Date(localMs);
-    const localIso = localDate.toISOString().replace('T', ' ').replace('Z', '').split('.')[0];
+    const localIso = localDate.toISOString().split('.')[0];  // "2026-03-16T21:47:00" — no Z = parsed as local
 
     const { results } = await env.DB.prepare(
       'SELECT product_id, quantity, note FROM shopping_list WHERE user_id = ?'
