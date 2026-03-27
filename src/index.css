@@ -1739,6 +1739,15 @@ body {
   animation: fadeIn 0.15s ease;
 }
 
+/* Desktop: lighter overlay without heavy blur */
+@media (min-width: 768px) {
+  .modal-overlay {
+    background: rgba(0,0,0,0.35);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
+}
+
 @keyframes fadeIn {
   from { opacity: 0; }
   to   { opacity: 1; }

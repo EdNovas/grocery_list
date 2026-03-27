@@ -173,7 +173,6 @@ export default function HomePage() {
   const [dailyKey, setDailyKey] = useState(0);
   const [longKey, setLongKey] = useState(0);
   const [checkoutDialog, setCheckoutDialog] = useState(null);
-  const [confirmDialog, setConfirmDialog] = useState(null); // { type: 'full' | 'partial', count }
   const [homeSearch, setHomeSearch] = useState('');
   const navigate = useNavigate();
   const [confirmNode, confirm] = useConfirm();
@@ -502,7 +501,14 @@ export default function HomePage() {
             {completed.length > 0 && completed.length < items.length && (
               <button
                 className="btn btn--primary btn--full"
-                onClick={() => setConfirmDialog({ type: 'partial', count: completed.length })}
+                onClick={async () => {
+                  const yes = await confirm({
+                    title: '🛒 确认保存已勾选？',
+                    message: `将 ${completed.length} 件已勾选商品保存到历史记录，未勾选的 ${pending.length} 件将保留在清单中`,
+                    confirmText: '确认保存',
+                  });
+                  if (yes) handleCheckout(true);
+                }}
                 disabled={checkingOut}
                 style={{ marginBottom: 'var(--space-sm)' }}
               >
@@ -511,7 +517,14 @@ export default function HomePage() {
             )}
             <button
               className={`btn btn--full ${completed.length > 0 && completed.length < items.length ? 'btn--ghost' : 'btn--primary'}`}
-              onClick={() => setConfirmDialog({ type: 'full', count: items.length })}
+              onClick={async () => {
+                const yes = await confirm({
+                  title: '📋 确认保存全部？',
+                  message: `将清单中全部 ${items.length} 件商品保存到历史记录，清单将会清空`,
+                  confirmText: '确认保存',
+                });
+                if (yes) handleCheckout(false);
+              }}
               disabled={checkingOut}
             >
               {checkingOut ? '处理中...' : '📋 全部保存到历史'}
@@ -594,43 +607,6 @@ export default function HomePage() {
           onClose={() => setCheckoutDialog(null)}
           onSave={handleSaveReminders}
         />
-      )}
-
-      {/* Confirmation Dialog */}
-      {confirmDialog && (
-        <div className="modal-overlay" onClick={() => setConfirmDialog(null)}>
-          <div className="modal-content" onClick={e => e.stopPropagation()}>
-            <div className="modal-content__handle" />
-            <div style={{ textAlign: 'center', padding: 'var(--space-md) 0' }}>
-              <div style={{ fontSize: '2.5rem', marginBottom: 'var(--space-md)' }}>
-                {confirmDialog.type === 'partial' ? '🛒' : '📋'}
-              </div>
-              <h3 style={{ marginBottom: 'var(--space-sm)', fontWeight: 700, fontSize: 'var(--font-size-lg)' }}>
-                {confirmDialog.type === 'partial' ? '确认保存已勾选？' : '确认保存全部？'}
-              </h3>
-              <p style={{ color: 'var(--text-secondary)', fontSize: 'var(--font-size-sm)', marginBottom: 'var(--space-lg)', lineHeight: 1.5 }}>
-                {confirmDialog.type === 'partial'
-                  ? <>将 <strong>{confirmDialog.count}</strong> 件已勾选商品保存到历史记录，<br/>未勾选的 <strong>{pending.length}</strong> 件将保留在清单中</>
-                  : <>将清单中全部 <strong>{confirmDialog.count}</strong> 件商品保存到历史记录，<br/>清单将会清空</>
-                }
-              </p>
-              <div style={{ display: 'flex', gap: 'var(--space-sm)' }}>
-                <button
-                  className="btn btn--ghost btn--full"
-                  onClick={() => setConfirmDialog(null)}
-                >
-                  取消
-                </button>
-                <button
-                  className="btn btn--primary btn--full"
-                  onClick={() => handleCheckout(confirmDialog.type === 'partial')}
-                >
-                  确认保存
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
       )}
 
       {confirmNode}
