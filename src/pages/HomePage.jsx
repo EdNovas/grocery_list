@@ -173,6 +173,7 @@ export default function HomePage() {
   const [dailyKey, setDailyKey] = useState(0);
   const [longKey, setLongKey] = useState(0);
   const [checkoutDialog, setCheckoutDialog] = useState(null);
+  const [confirmDialog, setConfirmDialog] = useState(null); // { type: 'full' | 'partial', count }
   const [homeSearch, setHomeSearch] = useState('');
   const navigate = useNavigate();
   const [confirmNode, confirm] = useConfirm();
@@ -244,19 +245,24 @@ export default function HomePage() {
     setTimeout(() => setToast(''), 1500);
   };
 
-  const handleCheckout = async () => {
+  const handleCheckout = async (completedOnly = false) => {
     setCheckingOut(true);
+    setConfirmDialog(null);
     try {
       // Track which products are being purchased
-      const purchasedProductIds = items.map(i => i.product_id);
+      const purchasedItems = completedOnly ? completed : items;
+      const purchasedProductIds = purchasedItems.map(i => i.product_id);
 
       // Check which are "new" (never had reminders set)
       const existing = JSON.parse(localStorage.getItem('grocery-reminders') || '{}');
       const newProductIds = purchasedProductIds.filter(id => existing[id] === undefined);
 
-      const ok = await checkout();
+      const ok = await checkout(completedOnly);
       if (ok) {
-        showToast('🎉 购买记录已保存！');
+        showToast(completedOnly
+          ? `🎉 已保存 ${purchasedItems.length} 件已购商品！`
+          : '🎉 购买记录已保存！'
+        );
 
         // Record purchase dates for ALL purchased products (for reminder timing)
         const purchaseDates = JSON.parse(localStorage.getItem('grocery-purchase-dates') || '{}');
@@ -350,7 +356,8 @@ export default function HomePage() {
     const q = homeSearch.trim().toLowerCase();
     return PRODUCTS.filter(p =>
       p.name.toLowerCase().includes(q) ||
-      (p.nameEn && p.nameEn.toLowerCase().includes(q))
+      (p.nameEn && p.nameEn.toLowerCase().includes(q)) ||
+      (p.aliases && p.aliases.some(a => a.toLowerCase().includes(q)))
     ).slice(0, 12);
   }, [homeSearch]);
 
@@ -490,10 +497,24 @@ export default function HomePage() {
 
           <div className="glass-card" style={{ padding: 'var(--space-lg)', textAlign: 'center', marginBottom: 'var(--space-xl)' }}>
             <p style={{ marginBottom: 'var(--space-md)', color: 'var(--text-secondary)', fontSize: 'var(--font-size-sm)' }}>
-              共 {items.length} 件商品
+              共 {items.length} 件商品{completed.length > 0 && `，已勾选 ${completed.length} 件`}
             </p>
-            <button className="btn btn--primary btn--full" onClick={handleCheckout} disabled={checkingOut}>
-              {checkingOut ? '处理中...' : '✅ 完成购物，记录到历史'}
+            {completed.length > 0 && completed.length < items.length && (
+              <button
+                className="btn btn--primary btn--full"
+                onClick={() => setConfirmDialog({ type: 'partial', count: completed.length })}
+                disabled={checkingOut}
+                style={{ marginBottom: 'var(--space-sm)' }}
+              >
+                {checkingOut ? '处理中...' : `✅ 保存已勾选 (${completed.length} 件)`}
+              </button>
+            )}
+            <button
+              className={`btn btn--full ${completed.length > 0 && completed.length < items.length ? 'btn--ghost' : 'btn--primary'}`}
+              onClick={() => setConfirmDialog({ type: 'full', count: items.length })}
+              disabled={checkingOut}
+            >
+              {checkingOut ? '处理中...' : '📋 全部保存到历史'}
             </button>
           </div>
         </>
@@ -573,6 +594,43 @@ export default function HomePage() {
           onClose={() => setCheckoutDialog(null)}
           onSave={handleSaveReminders}
         />
+      )}
+
+      {/* Confirmation Dialog */}
+      {confirmDialog && (
+        <div className="modal-overlay" onClick={() => setConfirmDialog(null)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
+            <div className="modal-content__handle" />
+            <div style={{ textAlign: 'center', padding: 'var(--space-md) 0' }}>
+              <div style={{ fontSize: '2.5rem', marginBottom: 'var(--space-md)' }}>
+                {confirmDialog.type === 'partial' ? '🛒' : '📋'}
+              </div>
+              <h3 style={{ marginBottom: 'var(--space-sm)', fontWeight: 700, fontSize: 'var(--font-size-lg)' }}>
+                {confirmDialog.type === 'partial' ? '确认保存已勾选？' : '确认保存全部？'}
+              </h3>
+              <p style={{ color: 'var(--text-secondary)', fontSize: 'var(--font-size-sm)', marginBottom: 'var(--space-lg)', lineHeight: 1.5 }}>
+                {confirmDialog.type === 'partial'
+                  ? <>将 <strong>{confirmDialog.count}</strong> 件已勾选商品保存到历史记录，<br/>未勾选的 <strong>{pending.length}</strong> 件将保留在清单中</>
+                  : <>将清单中全部 <strong>{confirmDialog.count}</strong> 件商品保存到历史记录，<br/>清单将会清空</>
+                }
+              </p>
+              <div style={{ display: 'flex', gap: 'var(--space-sm)' }}>
+                <button
+                  className="btn btn--ghost btn--full"
+                  onClick={() => setConfirmDialog(null)}
+                >
+                  取消
+                </button>
+                <button
+                  className="btn btn--primary btn--full"
+                  onClick={() => handleCheckout(confirmDialog.type === 'partial')}
+                >
+                  确认保存
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
 
       {confirmNode}
