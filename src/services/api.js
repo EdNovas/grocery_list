@@ -59,10 +59,10 @@ export const list = {
     request('/list/complete-all', { method: 'POST' }),
   clearCompleted: () =>
     request('/list/clear-completed', { method: 'POST' }),
-  checkout: () =>
+  checkout: (completedOnly = false) =>
     request('/list/checkout', {
       method: 'POST',
-      body: { tzOffset: new Date().getTimezoneOffset() }
+      body: { tzOffset: new Date().getTimezoneOffset(), completedOnly }
     }),
 };
 

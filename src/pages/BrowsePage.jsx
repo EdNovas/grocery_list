@@ -51,7 +51,8 @@ export default function BrowsePage() {
       const q = searchQuery.trim().toLowerCase();
       result = result.filter(p =>
         p.name.toLowerCase().includes(q) ||
-        (p.nameEn && p.nameEn.toLowerCase().includes(q))
+        (p.nameEn && p.nameEn.toLowerCase().includes(q)) ||
+        (p.aliases && p.aliases.some(a => a.toLowerCase().includes(q)))
       );
       return result;
     }

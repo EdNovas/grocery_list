@@ -16,6 +16,7 @@ export default function ShoppingListPage() {
   } = useShoppingList();
   const [toast, setToast] = useState('');
   const [checkingOut, setCheckingOut] = useState(false);
+  const [confirmDialog, setConfirmDialog] = useState(null); // { type: 'full' | 'partial', count: number }
 
   const pending = items.filter(i => !i.completed);
   const completed = items.filter(i => i.completed);
@@ -25,11 +26,15 @@ export default function ShoppingListPage() {
     setTimeout(() => setToast(''), 1500);
   };
 
-  const handleCheckout = async () => {
+  const executeCheckout = async (completedOnly) => {
     setCheckingOut(true);
-    const ok = await checkout();
+    setConfirmDialog(null);
+    const ok = await checkout(completedOnly);
     if (ok) {
-      showToast('🎉 购买记录已保存！');
+      showToast(completedOnly
+        ? `🎉 已保存 ${completed.length} 件已购商品！`
+        : '🎉 购买记录已保存！'
+      );
     }
     setCheckingOut(false);
   };
@@ -118,18 +123,65 @@ export default function ShoppingListPage() {
           {items.length > 0 && (
             <div className="glass-card" style={{ padding: 'var(--space-lg)', textAlign: 'center' }}>
               <p style={{ marginBottom: 'var(--space-md)', color: 'var(--text-secondary)', fontSize: 'var(--font-size-sm)' }}>
-                共 {items.length} 件商品
+                共 {items.length} 件商品{completed.length > 0 && `，已勾选 ${completed.length} 件`}
               </p>
+              {completed.length > 0 && completed.length < items.length && (
+                <button
+                  className="btn btn--primary btn--full"
+                  onClick={() => setConfirmDialog({ type: 'partial', count: completed.length })}
+                  disabled={checkingOut}
+                  style={{ marginBottom: 'var(--space-sm)' }}
+                >
+                  {checkingOut ? '处理中...' : `✅ 保存已勾选 (${completed.length} 件)`}
+                </button>
+              )}
               <button
-                className="btn btn--primary btn--full"
-                onClick={handleCheckout}
+                className={`btn btn--full ${completed.length > 0 && completed.length < items.length ? 'btn--ghost' : 'btn--primary'}`}
+                onClick={() => setConfirmDialog({ type: 'full', count: items.length })}
                 disabled={checkingOut}
               >
-                {checkingOut ? '处理中...' : '✅ 完成购物，记录到历史'}
+                {checkingOut ? '处理中...' : '📋 全部保存到历史'}
               </button>
             </div>
           )}
         </>
+      )}
+
+      {/* Confirmation Dialog */}
+      {confirmDialog && (
+        <div className="modal-overlay" onClick={() => setConfirmDialog(null)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
+            <div className="modal-content__handle" />
+            <div style={{ textAlign: 'center', padding: 'var(--space-md) 0' }}>
+              <div style={{ fontSize: '2.5rem', marginBottom: 'var(--space-md)' }}>
+                {confirmDialog.type === 'partial' ? '🛒' : '📋'}
+              </div>
+              <h3 style={{ marginBottom: 'var(--space-sm)', fontWeight: 700, fontSize: 'var(--font-size-lg)' }}>
+                {confirmDialog.type === 'partial' ? '确认保存已勾选？' : '确认保存全部？'}
+              </h3>
+              <p style={{ color: 'var(--text-secondary)', fontSize: 'var(--font-size-sm)', marginBottom: 'var(--space-lg)', lineHeight: 1.5 }}>
+                {confirmDialog.type === 'partial'
+                  ? <>将 <strong>{confirmDialog.count}</strong> 件已勾选商品保存到历史记录，<br/>未勾选的 <strong>{pending.length}</strong> 件将保留在清单中</>
+                  : <>将清单中全部 <strong>{confirmDialog.count}</strong> 件商品保存到历史记录，<br/>清单将会清空</>
+                }
+              </p>
+              <div style={{ display: 'flex', gap: 'var(--space-sm)' }}>
+                <button
+                  className="btn btn--ghost btn--full"
+                  onClick={() => setConfirmDialog(null)}
+                >
+                  取消
+                </button>
+                <button
+                  className="btn btn--primary btn--full"
+                  onClick={() => executeCheckout(confirmDialog.type === 'partial')}
+                >
+                  确认保存
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
 
       <div className={`toast ${toast ? 'show' : ''}`}>{toast}</div>

@@ -130,11 +130,16 @@ export function ShoppingListProvider({ children }) {
     }
   };
 
-  const checkout = async () => {
+  const checkout = async (completedOnly = false) => {
     try {
-      const result = await listApi.checkout();
+      const result = await listApi.checkout(completedOnly);
       if (result.ok) {
-        setItems([]);
+        if (completedOnly) {
+          // Only remove completed items from local state
+          setItems(prev => prev.filter(i => !i.completed));
+        } else {
+          setItems([]);
+        }
         return true;
       }
       return false;

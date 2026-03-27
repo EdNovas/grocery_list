@@ -20,7 +20,7 @@ export const CATEGORIES = [
   { id: 'baby', name: '母婴用品', icon: IC('baby-bottle') },
 ];
 
-const p = (id, n, _icon, cat, sub, f=7) => ({ id, name: n, icon: `/icons/${id}.png`, category: cat, subCategory: sub, defaultFreqDays: f });
+const p = (id, n, _icon, cat, sub, f=7, aliases=[]) => ({ id, name: n, icon: `/icons/${id}.png`, category: cat, subCategory: sub, defaultFreqDays: f, aliases });
 
 export const PRODUCTS = [
   // ═══════ 蔬菜 VEGETABLES ═══════
@@ -272,7 +272,7 @@ export const PRODUCTS = [
   p(412,'鸭蛋',I('eggs'),'dairy','蛋类',14),
   p(413,'皮蛋',I('eggs'),'dairy','蛋类',21),
   p(414,'咸鸭蛋',I('eggs'),'dairy','蛋类',21),
-  p(420,'奶酪片',I('cheese'),'dairy','奶制品',14),
+  p(420,'奶酪片',I('cheese'),'dairy','奶制品',14,['芝士片','芝士']),
   p(421,'马苏里拉',I('cheese'),'dairy','奶制品',14),
   p(422,'奶油',I('whipped-cream'),'dairy','奶制品',14),
   p(423,'黄油',I('butter'),'dairy','奶制品',30),
@@ -296,6 +296,7 @@ export const PRODUCTS = [
   p(503,'黑米',I('rice-bowl'),'staples','米面',30),
   p(504,'五谷杂粮',I('cereal'),'staples','米面',30),
   p(505,'面粉(中筋)',I('bread'),'staples','米面',30),
+  p(553,'面包糠',I('bread'),'staples','米面',30,['面包屑','panko']),
   p(506,'面粉(高筋)',I('bread'),'staples','米面',30),
   p(507,'面粉(低筋)',I('bread'),'staples','米面',30),
   // 面条
@@ -390,6 +391,8 @@ export const PRODUCTS = [
   p(654,'芝麻油',I('olive-oil'),'condiments','油类',60),
   p(655,'辣椒油',I('chili-pepper'),'condiments','油类',45),
   p(656,'花椒油',I('olive-oil'),'condiments','油类',60),
+  p(657,'芥末',I('mustard'),'condiments','酱料',60,['wasabi','山葵']),
+  p(658,'味增',I('jam'),'condiments','酱料',45,['味噌','miso']),
 
   // ═══════ 零食饮料 SNACKS ═══════
   p(700,'薯片',I('french-fries'),'snacks','膨化零食',14),
@@ -436,6 +439,7 @@ export const PRODUCTS = [
   p(805,'速冻披萨',I('pizza'),'frozen','速冻主食',14),
   p(806,'速冻烧麦',I('dumplings'),'frozen','速冻主食',14),
   p(807,'速冻春卷',I('dumplings'),'frozen','速冻主食',14),
+  p(808,'越南春纸',I('dumplings'),'frozen','速冻主食',30,['春卷皮','米纸','rice paper']),
   p(810,'冰淇淋',I('ice-cream-cone'),'frozen','冷饮',14),
   p(811,'雪糕',I('ice-cream-cone'),'frozen','冷饮',14),
   p(812,'冰棍',I('ice-cream-cone'),'frozen','冷饮',14),
