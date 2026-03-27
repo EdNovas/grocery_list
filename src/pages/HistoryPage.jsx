@@ -17,8 +17,9 @@ export default function HistoryPage() {
   const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState('');
-  const { addItem } = useShoppingList();
+  const { addItem, isInList } = useShoppingList();
   const [confirmNode, confirm] = useConfirm();
+  const [addingItemId, setAddingItemId] = useState(null);
 
   useEffect(() => {
     loadHistory();
@@ -29,19 +30,34 @@ export default function HistoryPage() {
       const data = await historyApi.get();
       const grouped = {};
       (data.history || []).forEach(item => {
-        // Convert to local date for correct grouping
+        // Convert to local date for display
         const d = new Date(item.purchased_at);
         const localDate = isNaN(d.getTime())
           ? (item.purchased_at?.split('T')[0] || '未知日期')
           : `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
         const localTime = isNaN(d.getTime()) ? '' : `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
-        if (!grouped[localDate]) grouped[localDate] = { items: [], time: localTime };
-        grouped[localDate].items.push(item);
+
+        // Group by session_id if available, otherwise fall back to date
+        const groupKey = item.session_id || `date:${localDate}`;
+
+        if (!grouped[groupKey]) {
+          grouped[groupKey] = {
+            sessionId: item.session_id || '',
+            date: localDate,
+            time: localTime,
+            items: [],
+          };
+        }
+        grouped[groupKey].items.push(item);
       });
 
-      const sortedGroups = Object.entries(grouped)
-        .sort(([a], [b]) => b.localeCompare(a))
-        .map(([date, { items, time }]) => ({ date, items, time }));
+      const sortedGroups = Object.values(grouped)
+        .sort((a, b) => {
+          // Sort by first item's purchased_at descending
+          const aTime = a.items[0]?.purchased_at || '';
+          const bTime = b.items[0]?.purchased_at || '';
+          return bTime.localeCompare(aTime);
+        });
 
       setGroups(sortedGroups);
     } catch {
@@ -71,7 +87,7 @@ export default function HistoryPage() {
     }
   };
 
-  const handleDeleteGroup = async (date) => {
+  const handleDeleteGroup = async (group) => {
     const yes = await confirm({
       title: '删除购物记录',
       message: '确定要删除这次购物记录吗？',
@@ -80,8 +96,16 @@ export default function HistoryPage() {
     });
     if (!yes) return;
     try {
-      await historyApi.deleteByDate(date);
-      setGroups(prev => prev.filter(g => g.date !== date));
+      if (group.sessionId) {
+        await historyApi.deleteSession(group.sessionId);
+      } else {
+        await historyApi.deleteByDate(group.date);
+      }
+      setGroups(prev => prev.filter(g =>
+        group.sessionId
+          ? g.sessionId !== group.sessionId
+          : g.date !== group.date
+      ));
       showToast('已删除该次购物记录');
     } catch {
       showToast('删除失败');
@@ -102,6 +126,18 @@ export default function HistoryPage() {
       showToast('历史记录已清空');
     } catch {
       showToast('清空失败');
+    }
+  };
+
+  const handleAddSingleItem = async (item) => {
+    setAddingItemId(item.id);
+    try {
+      const ok = await addItem(item.product_id);
+      showToast(ok ? `已添加「${item.name}」` : '添加失败');
+    } catch {
+      showToast('添加失败');
+    } finally {
+      setAddingItemId(null);
     }
   };
 
@@ -170,8 +206,8 @@ export default function HistoryPage() {
           </div>
 
           {/* History Groups */}
-          {groups.map(group => (
-            <div key={group.date} className="history-group">
+          {groups.map((group, idx) => (
+            <div key={group.sessionId || `${group.date}-${idx}`} className="history-group">
               <div className="history-group__date" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span>{formatDate(group.date)}{group.time ? ` ${group.time}` : ''}</span>
                 <div style={{ display: 'flex', gap: 'var(--space-xs)' }}>
@@ -190,28 +226,40 @@ export default function HistoryPage() {
                   >🛒 再买一次</button>
                   <button
                     className="btn btn--ghost btn--sm"
-                    onClick={() => handleDeleteGroup(group.date)}
+                    onClick={() => handleDeleteGroup(group)}
                     style={{ fontSize: 'var(--font-size-xs)', padding: '2px 8px', color: 'var(--text-tertiary)' }}
                     title="删除这次购物记录"
                   >🗑️ 删除</button>
                 </div>
               </div>
               <div className="glass-card" style={{ padding: 'var(--space-md)' }}>
-                {group.items.map((item) => (
-                  <div key={item.id} className="history-item">
-                    <span className="history-item__emoji">{getIcon(item)}</span>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <span className="history-item__name">{item.name}</span>
-                      {item.note && <div style={{ fontSize: 'var(--font-size-xs)', color: 'var(--text-tertiary)', marginTop: '1px' }}>{item.note}</div>}
+                {group.items.map((item) => {
+                  const alreadyInList = isInList(item.product_id);
+                  const isAdding = addingItemId === item.id;
+                  return (
+                    <div key={item.id} className="history-item">
+                      <span className="history-item__emoji">{getIcon(item)}</span>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <span className="history-item__name">{item.name}</span>
+                        {item.note && <div style={{ fontSize: 'var(--font-size-xs)', color: 'var(--text-tertiary)', marginTop: '1px' }}>{item.note}</div>}
+                      </div>
+                      <span className="history-item__qty">×{item.quantity}</span>
+                      <button
+                        className="history-item__add"
+                        onClick={() => handleAddSingleItem(item)}
+                        disabled={alreadyInList || isAdding}
+                        title={alreadyInList ? '已在清单中' : '加入购物清单'}
+                      >
+                        {alreadyInList ? '✓' : '+'}
+                      </button>
+                      <button
+                        className="history-item__delete"
+                        onClick={() => handleDeleteItem(item.id)}
+                        title="删除"
+                      >✕</button>
                     </div>
-                    <span className="history-item__qty">×{item.quantity}</span>
-                    <button
-                      className="history-item__delete"
-                      onClick={() => handleDeleteItem(item.id)}
-                      title="删除"
-                    >✕</button>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           ))}

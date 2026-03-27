@@ -81,6 +81,7 @@ export const products = {
 export const history = {
   get: (page = 1) => request(`/history?page=${page}`),
   deleteItem: (id) => request(`/history/${id}`, { method: 'DELETE' }),
+  deleteSession: (sessionId) => request('/history', { method: 'DELETE', body: { sessionId } }),
   deleteByDate: (date) => request('/history', { method: 'DELETE', body: { date } }),
   deleteAll: () => request('/history', { method: 'DELETE' }),
 };

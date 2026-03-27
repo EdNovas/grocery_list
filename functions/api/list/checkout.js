@@ -20,6 +20,9 @@ export async function onRequestPost(context) {
     const localDate = new Date(localMs);
     const localIso = localDate.toISOString().split('.')[0];  // "2026-03-16T21:47:00" — no Z = parsed as local
 
+    // Generate unique session ID for this checkout
+    const sessionId = crypto.randomUUID();
+
     const { results } = await env.DB.prepare(
       'SELECT product_id, quantity, note FROM shopping_list WHERE user_id = ?'
     ).bind(user.userId).all();
@@ -27,8 +30,8 @@ export async function onRequestPost(context) {
     if (results.length > 0) {
       const batch = results.map(item =>
         env.DB.prepare(
-          'INSERT INTO purchase_history (user_id, product_id, quantity, note, purchased_at) VALUES (?, ?, ?, ?, ?)'
-        ).bind(user.userId, item.product_id, item.quantity, item.note || '', localIso)
+          'INSERT INTO purchase_history (user_id, product_id, quantity, note, purchased_at, session_id) VALUES (?, ?, ?, ?, ?, ?)'
+        ).bind(user.userId, item.product_id, item.quantity, item.note || '', localIso, sessionId)
       );
       await env.DB.batch(batch);
     }

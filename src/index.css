@@ -1480,11 +1480,12 @@ body {
   transform: rotate(360deg);
 }
 
-/* --- History Item Delete --- */
+/* --- History Item Actions --- */
 .history-item {
   position: relative;
 }
 
+.history-item__add,
 .history-item__delete {
   display: none;
   align-items: center;
@@ -1493,15 +1494,36 @@ body {
   height: 22px;
   border: none;
   background: transparent;
-  color: var(--text-tertiary);
   cursor: pointer;
   font-size: 0.75rem;
   border-radius: 50%;
   transition: all var(--transition-fast);
-  margin-left: var(--space-sm);
+  margin-left: var(--space-xs);
   flex-shrink: 0;
 }
 
+.history-item__add {
+  color: var(--color-primary);
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.history-item__add:hover:not(:disabled) {
+  background: var(--color-primary);
+  color: white;
+}
+
+.history-item__add:disabled {
+  color: var(--text-tertiary);
+  cursor: default;
+  opacity: 0.6;
+}
+
+.history-item__delete {
+  color: var(--text-tertiary);
+}
+
+.history-item:hover .history-item__add,
 .history-item:hover .history-item__delete {
   display: flex;
 }
@@ -1511,8 +1533,9 @@ body {
   color: white;
 }
 
-/* Touch devices: always show delete */
+/* Touch devices: always show action buttons */
 @media (hover: none) {
+  .history-item__add,
   .history-item__delete {
     display: flex;
   }
