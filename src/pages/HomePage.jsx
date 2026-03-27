@@ -538,6 +538,9 @@ export default function HomePage() {
           <div className="empty-state__icon">📋</div>
           <p className="empty-state__title">购物清单是空的</p>
           <p className="empty-state__desc">点击下方推荐商品快速添加，或去分类页浏览</p>
+          <button className="btn btn--primary btn--sm" onClick={() => navigate('/browse')} style={{ marginTop: 'var(--space-md)' }}>
+            📦 去商品分类
+          </button>
         </div>
       )}
 
