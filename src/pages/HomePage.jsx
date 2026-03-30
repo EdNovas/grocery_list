@@ -246,7 +246,6 @@ export default function HomePage() {
 
   const handleCheckout = async (completedOnly = false) => {
     setCheckingOut(true);
-    setConfirmDialog(null);
     try {
       // Track which products are being purchased
       const purchasedItems = completedOnly ? completed : items;
