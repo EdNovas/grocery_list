@@ -1085,46 +1085,27 @@ body {
   }
 }
 
-/* --- Modal / Overlay --- */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(4px);
-  z-index: 300;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  animation: fadeIn var(--transition-fast) forwards;
-}
-
+/* --- Modal Content (centered dialog) --- */
 .modal-content {
   background: var(--bg-secondary);
-  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  border-radius: var(--radius-xl);
   width: 100%;
-  max-width: var(--max-width);
-  max-height: 80vh;
+  max-width: 480px;
+  max-height: 85vh;
   overflow-y: auto;
   padding: var(--space-xl);
-  animation: slideUp var(--transition-normal) forwards;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.05);
+  animation: modalPopIn 0.2s ease;
 }
 
+/* Drag handle hidden — dialogs are centered now, not bottom sheets */
 .modal-content__handle {
-  width: 36px;
-  height: 4px;
-  border-radius: 2px;
-  background: var(--text-tertiary);
-  margin: 0 auto var(--space-lg);
+  display: none;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes slideUp {
-  from { transform: translateY(100%); }
-  to { transform: translateY(0); }
+@keyframes modalPopIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1); }
 }
 
 /* --- Item Added Bounce --- */
@@ -1238,12 +1219,6 @@ body {
   .product-grid {
     grid-template-columns: repeat(7, 1fr);
     gap: var(--space-md);
-  }
-
-  .modal-content {
-    border-radius: var(--radius-xl);
-    max-width: 480px;
-    margin-bottom: auto;
   }
 
   .app-container {
