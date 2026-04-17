@@ -1070,19 +1070,17 @@ body {
 }
 
 /* --- Page Transition --- */
+/* NOTE: Must not use `transform` here. A non-none transform creates a
+   containing block for `position: fixed` descendants, which would break
+   `.modal-overlay` (it would be fixed relative to the page, not the viewport,
+   causing dialogs to scroll with the page instead of staying centered). */
 .page-enter {
-  animation: fadeSlideIn var(--transition-normal) forwards;
+  animation: pageEnterFade var(--transition-normal) ease;
 }
 
-@keyframes fadeSlideIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+@keyframes pageEnterFade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 /* --- Modal Content (centered dialog) --- */
