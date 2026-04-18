@@ -1698,13 +1698,15 @@ body {
 }
 
 /* ===== Modal Overlay & Dialog ===== */
+/* Frosted-glass backdrop: darker tint + heavier blur so content behind is
+   dimmed and unrecognizable, while still feeling translucent. */
 .modal-overlay {
   position: fixed;
   inset: 0;
   z-index: 1000;
-  background: rgba(0,0,0,0.65);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(5, 10, 20, 0.72);
+  backdrop-filter: blur(24px) saturate(140%);
+  -webkit-backdrop-filter: blur(24px) saturate(140%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1712,12 +1714,24 @@ body {
   animation: fadeIn 0.15s ease;
 }
 
-/* Desktop: lighter overlay without heavy blur */
+/* Desktop: keep the heavy frost but with slightly less tint since desktop
+   windows are bigger and too-dark overlays feel oppressive. */
 @media (min-width: 768px) {
   .modal-overlay {
-    background: rgba(0,0,0,0.35);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
+    background: rgba(5, 10, 20, 0.6);
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+  }
+}
+
+/* Light-theme variant: inverted tint so the frost reads as a bright veil
+   instead of a black wash. */
+[data-theme="light"] .modal-overlay {
+  background: rgba(240, 244, 252, 0.55);
+}
+@media (min-width: 768px) {
+  [data-theme="light"] .modal-overlay {
+    background: rgba(240, 244, 252, 0.45);
   }
 }
 
